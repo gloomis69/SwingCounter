@@ -28,12 +28,12 @@ public class SwingCounter {
 		
 		TrackingPanel panel = new TrackingPanel(startpanel);
 		panel.setBounds(450,5,180,750);
-		//frame.add(panel);	
+		
 		
 		// get the screen size as a java dimension
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-		// get 2/3 of the height, and 2/3 of the width
+		
 		int height = (int)(screenSize.height * 0.9);
 		if(height>820) height = 820;
 		int width = 670; //screenSize.width * 1/ 3;

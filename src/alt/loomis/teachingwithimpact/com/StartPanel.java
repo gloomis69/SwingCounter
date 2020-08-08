@@ -434,7 +434,7 @@ public class StartPanel extends JPanel{
 		f_1.setActionCommand(1+"");
 		JRadioButton f_2 = new JRadioButton("Fight(f)");
 		f_2.setBounds(210, 220+10*40, 100, 30);
-		f_2.setActionCommand(1+"");
+		f_2.setActionCommand(2+"");
 		bg.add(f_u);bg.add(f_1);bg.add(f_2);
 		f_u.addActionListener(slistener);
 		f_1.addActionListener(slistener);

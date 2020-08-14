@@ -31,10 +31,10 @@ public class TrackingPanel extends JPanel{
 	private JLabel skill1_bg;
 	private JLabel skill2_bg;
 	private Timer timer;
-	private boolean paused = false;
+	private boolean paused = true;
 	private JButton btnPause;
 	private JLabel lblTime;
-	private int count = 0;
+	private int secondsElapsed = 0;
 	//private SwingKeyCapture kc;
 	private JLabel lblPctCalc1;
 	private JLabel lblPctCalc2;
@@ -50,6 +50,7 @@ public class TrackingPanel extends JPanel{
     private static int[] swingCount = {0, 0};
     private boolean playStarted = false;
 	private JButton btnSaveSession;
+    private long startTime;
     
 	TrackingPanel(StartPanel startpanel){
 		NumberFormat fmt = NumberFormat.getPercentInstance();
@@ -221,11 +222,13 @@ public class TrackingPanel extends JPanel{
 			public void actionPerformed(ActionEvent e){  	            
 				if(paused) {
 					paused = false;
+					playStarted = true;
 					btnPause.setText("Pause");
 					timer = new Timer();
 					timer.schedule(new PlayTime(), 1000, 1*1000);
 				}else {
 					paused = true;
+					playStarted = false;
 					btnPause.setText("Resume");
 					timer.cancel();
 				}
@@ -296,7 +299,7 @@ public class TrackingPanel extends JPanel{
 	}
 
 	public void keyPressed(int key) {
-		if(!paused) {
+		if(!paused && playStarted) {
         	if(key == 192 || key == 160) {
         		skillNumBeingTracked=0;
         	}
@@ -305,21 +308,13 @@ public class TrackingPanel extends JPanel{
         		NumberFormat fmt = NumberFormat.getInstance();
         		fmt.setGroupingUsed(true);
             	if(skillNumBeingTracked==1) {
-            		if(!playStarted) {
-            			playStarted = true;
-            			startPlayTimer(); 
-            		}
             		swingCount[0]++; 
                 	lblSwingCount.setText(swingCount[0]+"");
                 	float sremaining = Float.parseFloat(lblSwingsNeeded.getText().replaceAll(",", ""))-1;
                 	if(sremaining<=0) sremaining = Float.parseFloat(spanel.getSwingsNeeded(1).replaceAll(",", ""));
                 	lblSwingsNeeded.setText(fmt.format(sremaining)+"");
                 	
-            	}else if(skillNumBeingTracked==2) {
-            		if(!playStarted) {
-            			playStarted = true;
-            			startPlayTimer(); 
-            		}
+            	}else if(skillNumBeingTracked==2) {            		
             		swingCount[1]++;
             		//System.out.println("Swing Total: "+swingCount[1]);
                 	lblSwingCount2.setText(swingCount[1]+"");
@@ -332,11 +327,7 @@ public class TrackingPanel extends JPanel{
             //F1 to F10 pressed determines which skill number to track
             for(int i=0; i<10; i++) {
             	if(key==(112+i)) {
-            		skillNumBeingTracked = spanel.getSkillTracked(i);
-            		if(!playStarted) {
-            			playStarted = true;
-            			startPlayTimer(); 
-            		}
+            		skillNumBeingTracked = spanel.getSkillTracked(i);            		
             	}
             }
             
@@ -391,6 +382,8 @@ public class TrackingPanel extends JPanel{
 
 	public void startPlayTimer() {	
 		spanel.toggleTracking(true);
+		playStarted = true;
+		startTime = System.currentTimeMillis();
 		paused = false;
 		btnPause.setVisible(true);
 		btnSaveSession.setVisible(true);
@@ -406,15 +399,15 @@ public class TrackingPanel extends JPanel{
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			count++;
-			if(count==1 || count%3==0) {
+			secondsElapsed = Math.round((System.currentTimeMillis()-startTime)/1000);
+			if(secondsElapsed==1 || secondsElapsed%3==0) {
 				int sCount = Integer.parseInt(lblSwingCount.getText());
-				float sph = (float) sCount/count*3600;
+				float sph = (float) sCount/secondsElapsed*3600;
 				lblSph1.setText((int)sph+"");
 				String pctgainedString = lblPctCalc1.getText();
 				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
 				float pctGained = Float.parseFloat(pctgainedString);
-				float pctph = (float)pctGained/count*3600;
+				float pctph = (float)pctGained/secondsElapsed*3600;
 				lblpph1.setText(String.format("%.3f", pctph)+"%");
 				float getLvl = spanel.getLevel1()+pctGained/100.0f;
 				int wholeLvl = Math.round(getLvl);
@@ -425,28 +418,28 @@ public class TrackingPanel extends JPanel{
 				
 				
 				sCount = Integer.parseInt(lblSwingCount2.getText());
-				sph = (float) sCount/count*3600;	
+				sph = (float) sCount/secondsElapsed*3600;	
 				lblSph2.setText((int)sph+"");
 				pctgainedString = lblPctCalc2.getText();
 				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
 				pctGained = Float.parseFloat(pctgainedString);
-				pctph = (float)pctGained/count*3600;
+				pctph = (float)pctGained/secondsElapsed*3600;
 				lblpph2.setText(String.format("%.3f", pctph)+"%");
 				getLvl = spanel.getLevel2()+pctGained/100.0f;
 				wholeLvl = Math.round(getLvl);
 				pct = Math.round(getLvl%1*100);
 				partialPct = (int)(((float) ((Math.round(getLvl*10000)/100.0))%1)*100); 
 				skill2Estimate.setText("Lvl "+wholeLvl+"    "+pct+"% and ");
-				//hundredths2.setText(partialPct+"");
+				hundredths2.setText(partialPct+"");
 			}
 			
-			int hours = count/3600;
+			int hours = secondsElapsed/3600;
 			String hh = hours+"";
 			if(hours<10) hh = "0"+hours;
-			int minutes = (count/60)-(hours*60);
+			int minutes = (secondsElapsed/60)-(hours*60);
 			String mm = minutes+"";
 			if(minutes<10) mm = "0"+minutes;
-			int seconds = count%60;
+			int seconds = secondsElapsed%60;
 			String ss = seconds+"";
 			if(seconds<10) ss = "0"+seconds;
 			lblTime.setText(hh+":"+mm+":"+ss);
@@ -520,7 +513,7 @@ public class TrackingPanel extends JPanel{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		count = 0;
+		secondsElapsed = 0;
 		lblPctCalc1.setText(0+"%");
 		lblPctCalc2.setText(0+"%");
 		lblpph1.setText(0+"");
@@ -531,6 +524,7 @@ public class TrackingPanel extends JPanel{
 		hundredths2.setText(0+"");	
 		skillNumBeingTracked=0;
 		playStarted=false;
+		paused = true;
 		lblTime.setText("00:00:00");
 		toggleSkillAlert(0);
 		spanel.toggleTracking(false);

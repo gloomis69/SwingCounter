@@ -51,11 +51,11 @@ public class SwingKeyCapture {
 	                            	if(skillNumBeingTracked==1) {
 	                            		if(!playStarted) {
 	                            			playStarted = true;
-	                            			tpanel.startPlayTimer();
+	                            			tpanel.startPlayTimer(); 
 	                            		}
 	                            		swingCount[0]++; 
 	                                	labels[0][0].setText(swingCount[0]+"");
-	                                	int sremaining = Integer.parseInt(labels[0][1].getText())-1;
+	                                	float sremaining = Float.parseFloat(labels[0][1].getText())-1;
 	                                	if(sremaining==0) sremaining = Integer.parseInt(spanel.getSwingsNeeded(1));
 	                                	labels[0][1].setText(sremaining+"");
 	                                	

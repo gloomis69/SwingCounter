@@ -37,13 +37,15 @@ public class StartPanel extends JPanel{
 									"12-Expert", "13-Astonishing", "14-Amazing", "15-Incredible", "16-Master", "17-Genius", "18-Unearthly", "19-Immortal"};
 	private String[] skillNames_hand = {"", "White", "Yellow", "Green", "Blue", "Red", "Black", "1st Dan", "2nd Dan", "3rd Dan",  "4th Dan", "5th Dan",
 										"6th Dan", "7th Dan", "8th Dan", "9th Dan", "White Sash", "Red Sash", "Gold Sash", "Master"};
-	private JComboBox<String> level1_CB;
-	private JComboBox<String> level2_CB;
-	private JComboBox<String> skill1_CB;
-	private JComboBox<String> skill2_CB;
+	private JComboBox level1_CB;
+	private JComboBox level2_CB;
+	private JComboBox skill1_CB;
+	private JComboBox skill2_CB;
 	private JTextField experience;
 	private JButton btnSave;
-	private JComboBox<String> charName;
+	private JComboBox charName;
+	private JTextField pctGained1;
+	private JTextField pctGained2;
 	
 	StartPanel(){
 		
@@ -60,9 +62,9 @@ public class StartPanel extends JPanel{
 		String[] cnames = cm.getCharacters();
 		
 		if(cnames!=null) {
-			charName = new JComboBox<String>(cnames);
+			charName = new JComboBox(cnames);
 		}else {
-			charName = new JComboBox<String>();
+			charName = new JComboBox();
 		}
 		getCharName().setBounds(10,38, 150,30); 
 		getCharName().setFont(new Font("Sans-Serif", Font.BOLD, 14));
@@ -125,26 +127,26 @@ public class StartPanel extends JPanel{
 		String[] skillsList = {"Bow", "Dagger", "Flail", "Halberd", "Mace", "Rapier", "Shuriken", "Staff", "Sword", "Twohanded", "Threestaff", "Hand"};
 		
 		JLabel lbl6= new JLabel("Skill 1: ");		
-		lbl6.setBounds(10, 70, 120, 30);		
-		skill1_CB = new JComboBox<String>(skillsList);
+		lbl6.setBounds(10, 70, 40, 30);		
+		skill1_CB = new JComboBox(skillsList);
 		skill1_CB.setBounds(10, 95, 120, 20);
 		
 		
 		JLabel lbl7= new JLabel("Skill 2: ");		
-		lbl7.setBounds(10, 120, 120, 30);
-		skill2_CB = new JComboBox<String>(skillsList);
+		lbl7.setBounds(10, 120, 40, 30);
+		skill2_CB = new JComboBox(skillsList);
 		skill2_CB.setBounds(10, 145, 120, 20);
 				
 		
 		
 		JLabel lbl8= new JLabel("Level: ");		
-		lbl8.setBounds(140, 70, 120, 30);
-		level1_CB = new JComboBox<String>(skillNames);
+		lbl8.setBounds(140, 70, 40, 30);
+		level1_CB = new JComboBox(skillNames);
 		level1_CB.setBounds(140, 95, 100, 20);
 		
 		JLabel lbl9= new JLabel("Level: ");		
-		lbl9.setBounds(140, 120, 120, 30);
-		level2_CB = new JComboBox<String>(skillNames);
+		lbl9.setBounds(140, 120, 40, 30);
+		level2_CB = new JComboBox(skillNames);
 		level2_CB.setBounds(140, 145, 100, 20);
 		
 		class SkillSelected implements ItemListener{
@@ -187,9 +189,9 @@ public class StartPanel extends JPanel{
 		       if (event.getStateChange() == ItemEvent.SELECTED) {
 		    	   String skill = (String)event.getItem();
 		    	   int level = getLevel(skill, 1);		    	   
-		    	   int swings = calculateSwingsPerPct(level, trained1.isSelected());
-		    	   Sw_per_pct1.setText(fmt.format(swings)+"");	
-		    	   Sw_per_lvl1.setText(fmt.format(swings*100)+"");
+		    	   int swings = calculateSwingsPerLvl(level, trained1.isSelected());
+		    	   Sw_per_pct1.setText(fmt.format(swings/100.0f)+"");	
+		    	   Sw_per_lvl1.setText(fmt.format(swings)+"");
 		       }
 		    }       
 		}
@@ -201,76 +203,84 @@ public class StartPanel extends JPanel{
 		       if (event.getStateChange() == ItemEvent.SELECTED) {
 		    	   String skill = (String)event.getItem();
 		    	   int level = getLevel(skill, 2);
-		    	   int swings = calculateSwingsPerPct(level, trained2.isSelected());
-		    	   Sw_per_pct2.setText(fmt.format(swings)+"");
-		    	   Sw_per_lvl2.setText(fmt.format(swings*100)+"");
+		    	   int swings = calculateSwingsPerLvl(level, trained2.isSelected());
+		    	   Sw_per_pct2.setText(fmt.format(swings/100.0f)+"");
+		    	   Sw_per_lvl2.setText(fmt.format(swings)+"");
 		       }
 		    }       
 		}
 		level2_CB.addItemListener(new LevelSelected2());
 		
-		JLabel lbl10= new JLabel("Trained?: ");		
-		lbl10.setBounds(210, 70, 120, 30);
+		JLabel lbl10= new JLabel("Trained?");		
+		lbl10.setToolTipText("Is this skill trained?");
+		lbl10.setFont(new Font("Tahoma", Font.PLAIN, 8));
+		lbl10.setHorizontalAlignment(SwingConstants.CENTER);
+		lbl10.setBounds(280, 70, 30, 30);
 		trained1 = new JCheckBox();
-		trained1.setBounds(250, 90, 20, 30);
+		trained1.setToolTipText("Is this skill trained?");
+		trained1.setBounds(285, 90, 20, 30);
 		class TrainingSelected1 implements ItemListener{
 		    @Override
 		    public void itemStateChanged(ItemEvent event) {
 		    	String skill = (String)level1_CB.getSelectedItem();
 			    int level = getLevel(skill, 1);
-		    	int swings = calculateSwingsPerPct(level, trained1.isSelected());
-		    	Sw_per_pct1.setText(fmt.format(swings)+"");	
-		    	Sw_per_lvl1.setText(fmt.format(swings*100)+"");
+		    	int swings = calculateSwingsPerLvl(level, trained1.isSelected());
+		    	Sw_per_pct1.setText(fmt.format(swings/100.0f)+"");	
+		    	Sw_per_lvl1.setText(fmt.format(swings)+"");
 		    }       
 		}
 		trained1.addItemListener(new TrainingSelected1());
 		
 		
-		JLabel lbl11= new JLabel("Trained?: ");		
-		lbl11.setBounds(210, 120, 120, 30);
+		JLabel lbl11= new JLabel("Trained?");		
+		lbl11.setFont(new Font("Tahoma", Font.PLAIN, 8));
+		lbl11.setToolTipText("Is this skill trained?");
+		lbl11.setHorizontalAlignment(SwingConstants.CENTER);
+		lbl11.setBounds(280, 120, 30, 30);
 		trained2 = new JCheckBox();
-		trained2.setBounds(250, 140, 20, 30);
+		trained2.setToolTipText("Is this skill trained?");
+		trained2.setBounds(285, 140, 20, 30);
 		class TrainingSelected2 implements ItemListener{
 		    @Override
 		    public void itemStateChanged(ItemEvent event) {
 		       String skill = (String)level2_CB.getSelectedItem();
 		       int level = getLevel(skill, 2);
-		       int swings = calculateSwingsPerPct(level, trained2.isSelected());
-		       Sw_per_pct2.setText(fmt.format(swings)+"");	
-		       Sw_per_lvl2.setText(fmt.format(swings*100)+"");
+		       int swings = calculateSwingsPerLvl(level, trained2.isSelected());
+		       Sw_per_pct2.setText(fmt.format(swings/100.0f)+"");	
+		       Sw_per_lvl2.setText(fmt.format(swings)+"");
 		    }       
 		}
 		trained2.addItemListener(new TrainingSelected2());
 		
 		JLabel lbl12= new JLabel("Sw per %");
 		lbl12.setHorizontalAlignment(SwingConstants.CENTER);
-		lbl12.setBounds(280, 70, 60, 30);
+		lbl12.setBounds(310, 70, 60, 30);
 		
 		Sw_per_pct1= new JLabel("0");		
-		Sw_per_pct1.setBounds(280, 90, 50, 30);
+		Sw_per_pct1.setBounds(310, 90, 60, 30);
 		Sw_per_pct1.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JLabel lbl13= new JLabel("Sw per %");		
-		lbl13.setBounds(280, 120, 60, 30);
+		lbl13.setBounds(310, 120, 60, 30);
 		lbl13.setHorizontalAlignment(SwingConstants.CENTER);
 		Sw_per_pct2= new JLabel("0");		
-		Sw_per_pct2.setBounds(280, 140, 50, 30);
+		Sw_per_pct2.setBounds(310, 140, 60, 30);
 		Sw_per_pct2.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JLabel lbl14= new JLabel("Sw per lvl:");
 		lbl14.setHorizontalAlignment(SwingConstants.CENTER);
-		lbl14.setBounds(350, 70, 80, 30);
+		lbl14.setBounds(370, 70, 60, 30);
 		
 		Sw_per_lvl1= new JLabel("0");		
-		Sw_per_lvl1.setBounds(350, 90, 80, 30);
+		Sw_per_lvl1.setBounds(370, 90, 60, 30);
 		Sw_per_lvl1.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JLabel lbl15= new JLabel("Sw per lvl:");
 		lbl15.setHorizontalAlignment(SwingConstants.CENTER);
-		lbl15.setBounds(350, 120, 80, 30);
+		lbl15.setBounds(370, 120, 60, 30);
 		
 		Sw_per_lvl2= new JLabel("0");		
-		Sw_per_lvl2.setBounds(350, 140, 80, 30);
+		Sw_per_lvl2.setBounds(370, 140, 60, 30);
 		Sw_per_lvl2.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JLabel lbl3= new JLabel("Unassigned: ");		
@@ -294,6 +304,38 @@ public class StartPanel extends JPanel{
 		this.add(Sw_per_lvl1);this.add(Sw_per_lvl2);
 		createRadios();
 		
+		
+		
+		this.setBackground(Color.white);
+		this.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("%");
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel.setBounds(245, 79, 35, 14);
+		add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel("%");
+		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_1.setBounds(245, 128, 35, 14);
+		add(lblNewLabel_1);
+		
+		pctGained1 = new JTextField();
+		pctGained1.setText("0");
+		pctGained1.setHorizontalAlignment(SwingConstants.CENTER);
+		pctGained1.setBounds(244, 95, 38, 20);
+		add(pctGained1);
+		pctGained1.setColumns(10);
+		
+		
+		
+		pctGained2 = new JTextField();
+		pctGained2.setText("0");
+		pctGained2.setHorizontalAlignment(SwingConstants.CENTER);
+		pctGained2.setBounds(244, 145, 38, 20);
+		add(pctGained2);
+		pctGained2.setColumns(10);
+		this.setVisible(true);
+		
 		btnSave = new JButton("Save");
 		btnSave.setBounds(360,700,70,30);
 		btnSave.addActionListener(new ActionListener(){  
@@ -302,11 +344,15 @@ public class StartPanel extends JPanel{
 	            String exp = getExperience().getText();
 	            String skill1 = (String)skill1_CB.getSelectedItem();
 	            String level1 = (String)level1_CB.getSelectedItem();
+	            String pct1 = pctGained1.getText();
+	            
 	            String t1 = Boolean.toString(trained1.isSelected());
 	            String skill2 = (String)skill2_CB.getSelectedItem();
 	            String level2 = (String)level2_CB.getSelectedItem();
+	            String pct2 = pctGained2.getText();
 	            String t2 = Boolean.toString(trained2.isSelected());
 	            String settings = "";
+	            
 	            for(int i=0; i<skillsTracked.length; i++) {
 	            	if(i<skillsTracked.length-1) {
 	            		settings+=skillsTracked[i]+",";
@@ -315,16 +361,10 @@ public class StartPanel extends JPanel{
 	            	}
 	            }
 	            CharacterManager cm = new CharacterManager();
-	            cm.save(character, exp, skill1, level1, t1, skill2, level2, t2, settings);
+	            cm.save(character, exp, skill1, level1, t1, skill2, level2, t2, settings, pct1, pct2);
 	        }  
 	    }); 
 		this.add(btnSave);
-		
-		this.setBackground(Color.white);
-		this.setLayout(null);
-		this.setVisible(true);
-		
-		
 	}
 	
 	public void saveSettings() {
@@ -343,10 +383,12 @@ public class StartPanel extends JPanel{
 			skill1_CB.setSelectedItem(data[2]);
 			level1_CB.setSelectedItem(data[3]);
 			trained1.setSelected(Boolean.parseBoolean(data[4]));
+			pctGained1.setText(data[9]);
 			
 			skill2_CB.setSelectedItem(data[5]);
 			level2_CB.setSelectedItem(data[6]);
 			trained2.setSelected(Boolean.parseBoolean(data[7]));
+			pctGained2.setText(data[10]);
 			
 			for(int i=0; i<settings.length; i++) {
 				int b = Integer.parseInt(settings[i]);
@@ -357,6 +399,7 @@ public class StartPanel extends JPanel{
 		
 	}
 
+	
 	
 	private int getLevel(String skill, int skillNum) {	
  	   int level = 0;
@@ -377,8 +420,10 @@ public class StartPanel extends JPanel{
  	   
 	}
 	
-	private int calculateSwingsPerPct(int level, boolean trained) {
-		int swings = (int) ((100*Math.pow(2, level))/(level+2)/100);
+	private int calculateSwingsPerLvl(int level, boolean trained) {
+		int swings = (int) ((100*Math.pow(2, level))/(level+2));
+		System.out.println(Math.pow(2, level));
+		//int swings = (int) ((50*(Math.pow(2, level)))/(level+2));
 		if(trained) swings = swings/2;
 		return (int)swings;
 	}
@@ -492,12 +537,12 @@ public class StartPanel extends JPanel{
 		return rbGroups;
 	}
 	
-	public int getSwingsPerPct(int skillNum) {		
+	public float getSwingsPerPct(int skillNum) {		
 		String spp = Sw_per_pct2.getText();
 		if(skillNum==1) spp = Sw_per_pct1.getText();
 		spp = spp.replaceAll(",", "");
-		if(skillNum==1) return Integer.parseInt(spp);
-		return Integer.parseInt(spp);
+		if(skillNum==1) return Float.parseFloat(spp);
+		return Float.parseFloat(spp);
 	}
 	
 	public String getSwingsNeeded(int skillNum) {
@@ -511,7 +556,7 @@ public class StartPanel extends JPanel{
 	
 	
 
-	public JComboBox<String> getCharName() {
+	public JComboBox getCharName() {
 		return charName;
 	}
 
@@ -521,12 +566,39 @@ public class StartPanel extends JPanel{
 	}
 	
 	public void setExperience(String endExp) {
-		experience.setText(endExp);
-		btnSave.doClick();
+		experience.setText(endExp);		
 	}
 	
 	public String getSkill(int skillNum) {
 		if(skillNum==1) return (String)skill1_CB.getSelectedItem();
 		return (String)skill2_CB.getSelectedItem();
+	}
+	
+	public float getLevel1() {
+		int level = level1_CB.getSelectedIndex();
+		float pct = Float.parseFloat(pctGained1.getText())*0.01f;
+		return level+pct;
+	}
+	
+	public float getLevel2() {
+		int level = level2_CB.getSelectedIndex();
+		float pct = Float.parseFloat(pctGained2.getText())*0.01f;
+		return level+pct;
+	}
+
+	public void setLevel(float getLvl) {
+		System.out.println("pct on spanel: "+getLvl);
+		float pct = (getLvl%1)*10000.0f;
+		int wholeLevel = (int)getLvl;
+		
+		
+		pct = ((int)pct)/100.0f;
+		
+		level1_CB.setSelectedIndex(wholeLevel);
+		pctGained1.setText(pct+"");
+	}
+	
+	public void save() {
+		btnSave.doClick();
 	}
 }

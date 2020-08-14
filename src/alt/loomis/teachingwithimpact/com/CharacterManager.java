@@ -60,10 +60,10 @@ public class CharacterManager {
 		}
 	}
 	
-	public void save(String cname, String experience, String skill1, String level1, String trained1, String skill2, String level2, String trained2, String settings) {
+	public void save(String cname, String experience, String skill1, String level1, String trained1, String skill2, String level2, String trained2, String settings, String pct1, String pct2) {
 		SqLite sqlite = new SqLite();
 		try {
-			sqlite.saveCharacter(cname, experience, skill1, level1, trained1, skill2, level2, trained2, settings);
+			sqlite.saveCharacter(cname, experience, skill1, level1, trained1, skill2, level2, trained2, settings, pct1, pct2);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -74,7 +74,7 @@ public class CharacterManager {
 	public String[] getCharacterData(String name) {
 		SqLite sqlite = new SqLite();
 		ResultSet rs;
-		String[] response = new String[10];
+		String[] response = new String[12];
 		try {
 			rs= sqlite.getCharacter(name);
 			while(rs.next()) {
@@ -88,6 +88,8 @@ public class CharacterManager {
 				response[6] = rs.getString("level2");
 				response[7] = rs.getString("trained2");
 				response[8] = rs.getString("settings");	
+				response[9] = rs.getString("pct1");	
+				response[10] = rs.getString("pct2");	
 				/*System.out.println(rs.getString("character")+" "+rs.getString("experience")+" "
 						+rs.getString("skill1")+" "+rs.getString("level1")+" "+rs.getString("trained1")+" "
 						+rs.getString("skill2")+" "+rs.getString("level2")+" "+rs.getString("trained2")

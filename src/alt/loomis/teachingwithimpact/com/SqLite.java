@@ -71,6 +71,20 @@ public class SqLite {
 				
 				
 			}
+			ResultSet res3 = state.executeQuery("PRAGMA table_info(characters);");
+			boolean pct1Added = false;
+			boolean pct2Added = false;
+			while (res3.next()) {
+				if(res3.getString("name").equals("pct1")) pct1Added = true;
+				if(res3.getString("name").equals("pct2")) pct2Added = true;
+				//System.out.println(res3.getString("name"));
+			}
+			if(!pct1Added) {
+				state.execute("ALTER TABLE 'characters' ADD COLUMN pct1 varchar(10) default '0'");
+			}
+			if(!pct2Added) {
+				state.execute("ALTER TABLE 'characters' ADD COLUMN pct2 varchar(10) default '0'");
+			}
 		}
 	}
 	
@@ -92,13 +106,13 @@ public class SqLite {
 		prep.execute();
 	}
 	
-	public void saveCharacter(String cname, String experience, String skill1, String level1, String trained1, String skill2, String level2, String trained2, String settings) throws ClassNotFoundException, SQLException {
+	public void saveCharacter(String cname, String experience, String skill1, String level1, String trained1, String skill2, String level2, String trained2, String settings, String pct1, String pct2) throws ClassNotFoundException, SQLException {
 		if(con==null) {
 			getConnection();
 		}
 		
 		
-		PreparedStatement prep = con.prepareStatement("INSERT OR IGNORE INTO characters(character, experience, skill1, level1, trained1, skill2, level2, trained2, settings) values(?,?,?,?,?,?,?,?,?)");
+		PreparedStatement prep = con.prepareStatement("INSERT OR IGNORE INTO characters(character, experience, skill1, level1, trained1, skill2, level2, trained2, settings, pct1, pct2) values(?,?,?,?,?,?,?,?,?,?,?)");
 		prep.setString(1, cname);
 		prep.setString(2, experience);
 		prep.setString(3, skill1);
@@ -108,9 +122,11 @@ public class SqLite {
 		prep.setString(7, level2);
 		prep.setString(8, trained2);
 		prep.setString(9, settings);
+		prep.setString(10, pct1);
+		prep.setString(11, pct2);
 		prep.execute();
 		
-		String query = "UPDATE characters SET experience=?, skill1=?, level1=?, trained1=?, skill2=?, level2=?, trained2=?, settings=? WHERE character = ?;";
+		String query = "UPDATE characters SET experience=?, skill1=?, level1=?, trained1=?, skill2=?, level2=?, trained2=?, settings=?, pct1=?, pct2=? WHERE character = ?;";
 				
 		PreparedStatement prep2 = con.prepareStatement(query);
 		
@@ -122,7 +138,9 @@ public class SqLite {
 		prep2.setString(6, level2);
 		prep2.setString(7, trained2);
 		prep2.setString(8, settings);
-		prep2.setString(9,  cname);
+		prep2.setString(9,  pct1);
+		prep2.setString(10,  pct2);
+		prep2.setString(11,  cname);
 		prep2.execute();
 	}
 	

@@ -41,10 +41,11 @@ public class TrackingPanel extends JPanel{
 	private JLabel lblpph1;
 	private JLabel lblpph2;
 	private JLabel skill1Estimate;
-	private JLabel lblNewLabel_1;
 	private JLabel skill2Estimate;
 	private JLabel lblNewLabel_2;
 	private JLabel hundredths1;
+	private JLabel lblNewLabel_3;
+	private JLabel hundredths2;
 	
 	TrackingPanel(StartPanel startpanel){
 		NumberFormat fmt = NumberFormat.getPercentInstance();
@@ -241,12 +242,8 @@ public class TrackingPanel extends JPanel{
 		skill1Estimate.setBounds(20, 130, 104, 14);
 		add(skill1Estimate);
 		
-		lblNewLabel_1 = new JLabel("Estimated Level:");
-		lblNewLabel_1.setBounds(20, 430, 84, 14);
-		add(lblNewLabel_1);
-		
-		skill2Estimate = new JLabel("0");
-		skill2Estimate.setBounds(114, 430, 46, 14);
+		skill2Estimate = new JLabel("");
+		skill2Estimate.setBounds(20, 430, 104, 14);
 		add(skill2Estimate);
 		
 		lblNewLabel_2 = new JLabel("100ths");
@@ -261,6 +258,22 @@ public class TrackingPanel extends JPanel{
 		hundredths1.setHorizontalAlignment(SwingConstants.CENTER);
 		hundredths1.setBounds(128, 125, 35, 14);
 		add(hundredths1);
+		this.setVisible(true);
+		
+		
+		
+		lblNewLabel_3 = new JLabel("100ths");
+		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 8));
+		lblNewLabel_3.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_3.setBounds(130, 437, 30, 14);
+		lblNewLabel_3.setBorder(new MatteBorder(1, 0, 0, 0, Color.BLACK));
+		add(lblNewLabel_3);
+		
+		hundredths2 = new JLabel("0");
+		hundredths2.setFont(new Font("Tahoma", Font.PLAIN, 8));
+		hundredths2.setHorizontalAlignment(SwingConstants.CENTER);
+		hundredths2.setBounds(128, 425, 35, 14);
+		add(hundredths2);
 		this.setVisible(true);
 	}
 
@@ -315,7 +328,7 @@ public class TrackingPanel extends JPanel{
 		public void run() {
 			// TODO Auto-generated method stub
 			count++;
-			if(count%5==0) {
+			if(count==1 || count%3==0) {
 				int sCount = Integer.parseInt(lblSwingCount.getText());
 				float sph = (float) sCount/count*3600;
 				lblSph1.setText((int)sph+"");
@@ -325,25 +338,27 @@ public class TrackingPanel extends JPanel{
 				float pctph = (float)pctGained/count*3600;
 				lblpph1.setText(String.format("%.3f", pctph)+"%");
 				float getLvl = spanel.getLevel1()+pctGained/100.0f;
-				System.out.println(getLvl);
 				int wholeLvl = Math.round(getLvl);
 				int pct = Math.round(getLvl%1*100);
 				int partialPct = (int)(((float) ((Math.round(getLvl*10000)/100.0))%1)*100); 
-				
-								
 				skill1Estimate.setText("Lvl "+wholeLvl+"    "+pct+"% and ");
 				hundredths1.setText(partialPct+"");
+				
+				
 				sCount = Integer.parseInt(lblSwingCount2.getText());
-				sph = (float) sCount/count*3600;
-				
-				
+				sph = (float) sCount/count*3600;	
 				lblSph2.setText((int)sph+"");
 				pctgainedString = lblPctCalc2.getText();
 				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
 				pctGained = Float.parseFloat(pctgainedString);
 				pctph = (float)pctGained/count*3600;
 				lblpph2.setText(String.format("%.3f", pctph)+"%");
-				
+				getLvl = spanel.getLevel2()+pctGained/100.0f;
+				wholeLvl = Math.round(getLvl);
+				pct = Math.round(getLvl%1*100);
+				partialPct = (int)(((float) ((Math.round(getLvl*10000)/100.0))%1)*100); 
+				skill2Estimate.setText("Lvl "+wholeLvl+"    "+pct+"% and ");
+				//hundredths2.setText(partialPct+"");
 			}
 			
 			int hours = count/3600;
@@ -367,29 +382,38 @@ public class TrackingPanel extends JPanel{
 		return labels;
 	}
 	
-	public void setExperience(String endExp) {
+	public void setExperience() {
 		if(spanel.getCharName().getSelectedIndex()!=0) {
 			Long exp = Long.parseLong(spanel.getExperience().getText());
-			Long endexp = Long.parseLong(endExp);
-			Long gained = endexp-exp;
-			spanel.setExperience(endExp+"");
-			String pctgainedString = lblPctCalc1.getText();
-			pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
-			float pctGained = Float.parseFloat(pctgainedString)/100.0f;
-			System.out.println("pctGained: "+pctGained);
-			float current = spanel.getLevel1();
-			System.out.println("current: "+current);
-			float getLvl = current+pctGained;
-			
-			getLvl = ((int)(getLvl*10000))/10000.0f;
-			System.out.println("total: "+getLvl);
-			
-			spanel.setLevel(getLvl);
-			spanel.save();
-			
-			CharacterManager cm = new CharacterManager();
-			cm.save_session_data((String)spanel.getCharName().getSelectedItem(), gained+"", getSessionLength(), spanel.getSkill(1), lblSwingCount.getText(), lblPctCalc1.getText(), lblSph1.getText(), spanel.getSkill(2), lblSwingCount2.getText(), lblPctCalc2.getText(), lblSph2.getText());
-			JOptionPane.showMessageDialog(this.getParent(),"Experience gained this session: "+gained);
+			String endExp = JOptionPane.showInputDialog(this.getParent(), "Enter you characters experience", exp);
+	    	
+	    	if(endExp!=null && !endExp.isEmpty()) {
+	    		
+				Long endexp = Long.parseLong(endExp);
+				Long gained = endexp-exp;
+				spanel.setExperience(endExp+"");
+				String pctgainedString = lblPctCalc1.getText();
+				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
+				float pctGained = Float.parseFloat(pctgainedString)/100.0f;
+				float current = spanel.getLevel1();
+				float getLvl = current+pctGained;
+				getLvl = ((int)(getLvl*10000))/10000.0f;
+				spanel.setLevel1(getLvl);
+				
+				pctgainedString = lblPctCalc2.getText();
+				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
+				pctGained = Float.parseFloat(pctgainedString)/100.0f;
+				current = spanel.getLevel2();
+				getLvl = current+pctGained;
+				getLvl = ((int)(getLvl*10000))/10000.0f;
+				spanel.setLevel2(getLvl);
+				
+				spanel.save();
+				
+				CharacterManager cm = new CharacterManager();
+				cm.save_session_data((String)spanel.getCharName().getSelectedItem(), gained+"", getSessionLength(), spanel.getSkill(1), lblSwingCount.getText(), lblPctCalc1.getText(), lblSph1.getText(), spanel.getSkill(2), lblSwingCount2.getText(), lblPctCalc2.getText(), lblSph2.getText());
+				JOptionPane.showMessageDialog(this.getParent(),"Experience gained this session: "+gained);
+	    	}
 		}
 	}
 }

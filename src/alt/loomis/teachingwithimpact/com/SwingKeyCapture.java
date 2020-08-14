@@ -1,4 +1,6 @@
 package alt.loomis.teachingwithimpact.com;
+import java.text.NumberFormat;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -30,6 +32,7 @@ public class SwingKeyCapture {
 	     HMODULE hMod = Kernel32.INSTANCE.GetModuleHandle(null);
 	     keyboardHook = new LowLevelKeyboardProc() {
 	    boolean playStarted = false;
+	    
             @Override
             public LRESULT callback(int nCode, WPARAM wParam, KBDLLHOOKSTRUCT info) {
                 if (nCode >= 0) {
@@ -48,6 +51,8 @@ public class SwingKeyCapture {
 	                        	}
 	                        	
 	                        	if(info.vkCode == 13) {
+	                        		NumberFormat fmt = NumberFormat.getInstance();
+	                        		fmt.setGroupingUsed(true);
 	                            	if(skillNumBeingTracked==1) {
 	                            		if(!playStarted) {
 	                            			playStarted = true;
@@ -56,16 +61,20 @@ public class SwingKeyCapture {
 	                            		swingCount[0]++; 
 	                                	labels[0][0].setText(swingCount[0]+"");
 	                                	float sremaining = Float.parseFloat(labels[0][1].getText())-1;
-	                                	if(sremaining==0) sremaining = Integer.parseInt(spanel.getSwingsNeeded(1));
-	                                	labels[0][1].setText(sremaining+"");
+	                                	if(sremaining<=0) sremaining = Float.parseFloat(spanel.getSwingsNeeded(1));
+	                                	labels[0][1].setText(fmt.format(sremaining)+"");
 	                                	
 	                            	}else if(skillNumBeingTracked==2) {
+	                            		if(!playStarted) {
+	                            			playStarted = true;
+	                            			tpanel.startPlayTimer(); 
+	                            		}
 	                            		swingCount[1]++;
 	                            		//System.out.println("Swing Total: "+swingCount[1]);
 	                                	labels[1][0].setText(swingCount[1]+"");
-	                                	int sremaining = Integer.parseInt(labels[1][1].getText())-1;
-	                                	if(sremaining==0) sremaining = Integer.parseInt(spanel.getSwingsNeeded(2));
-	                                	labels[1][1].setText(sremaining+"");
+	                                	float sremaining = Float.parseFloat(labels[1][1].getText())-1;
+	                                	if(sremaining<=0) sremaining = Float.parseFloat(spanel.getSwingsNeeded(2));
+	                                	labels[1][1].setText(fmt.format(sremaining)+"");
 	                            	}                            	
 	                            }
 	                            
@@ -73,6 +82,10 @@ public class SwingKeyCapture {
 	                            for(int i=0; i<10; i++) {
 	                            	if(info.vkCode==(112+i)) {
 	                            		skillNumBeingTracked = spanel.getSkillTracked(i);
+	                            		if(!playStarted) {
+	                            			playStarted = true;
+	                            			tpanel.startPlayTimer(); 
+	                            		}
 	                            	}
 	                            }
 	                            
@@ -110,11 +123,7 @@ public class SwingKeyCapture {
 		         * 
 		    	*/
 		    	if(spanel.getCharacterIndex()!=0) {
-			    	String experience = JOptionPane.showInputDialog(frame, "Enter you characters experience");
-			    	
-			    	if(experience!=null && !experience.isEmpty()) {
-			    		tpanel.setExperience(experience);
-			    	}
+		    		tpanel.setExperience();			    	
 		    	}
 		    	setQuit(true);
 		    }

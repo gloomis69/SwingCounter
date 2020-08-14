@@ -586,16 +586,20 @@ public class StartPanel extends JPanel{
 		return level+pct;
 	}
 
-	public void setLevel(float getLvl) {
-		System.out.println("pct on spanel: "+getLvl);
+	public void setLevel1(float getLvl) {
 		float pct = (getLvl%1)*10000.0f;
 		int wholeLevel = (int)getLvl;
-		
-		
 		pct = ((int)pct)/100.0f;
-		
 		level1_CB.setSelectedIndex(wholeLevel);
 		pctGained1.setText(pct+"");
+	}
+	
+	public void setLevel2(float getLvl) {
+		float pct = (getLvl%1)*10000.0f;
+		int wholeLevel = (int)getLvl;
+		pct = ((int)pct)/100.0f;
+		level2_CB.setSelectedIndex(wholeLevel);
+		pctGained2.setText(pct+"");
 	}
 	
 	public void save() {

@@ -118,7 +118,7 @@ public class SwingCounter {
               			    	String experience = JOptionPane.showInputDialog(frame, "Enter you characters experience");
               			    	
               			    	if(experience!=null && !experience.isEmpty()) {
-              			    		panel.setExperience(experience);
+              			    		panel.setExperience();
               			    	}
               		    	}
               		    	kc.setQuit(true);

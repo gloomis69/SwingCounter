@@ -22,16 +22,14 @@ public class SwingKeyCapture {
 	private static volatile boolean quit;
     private static HHOOK hhk;
     private static LowLevelKeyboardProc keyboardHook;
-    private static int skillNumBeingTracked = 0; //0=no skill tracked, 1=skill 1, 2=skill 2: remember -1 for index of swingCount
-    private static int[] swingCount = {0, 0};
-    public boolean paused = false;
     
-	SwingKeyCapture(JFrame frame, JLabel[][] labels, StartPanel spanel, TrackingPanel tpanel) {		 
-		tpanel.loadKeyCapture(this); 
+    
+	SwingKeyCapture(JFrame frame, StartPanel spanel, TrackingPanel tpanel) {		 
+		//tpanel.loadKeyCapture(this); 
 		final User32 lib = User32.INSTANCE;
 	     HMODULE hMod = Kernel32.INSTANCE.GetModuleHandle(null);
 	     keyboardHook = new LowLevelKeyboardProc() {
-	    boolean playStarted = false;
+	    
 	    
             @Override
             public LRESULT callback(int nCode, WPARAM wParam, KBDLLHOOKSTRUCT info) {
@@ -45,62 +43,8 @@ public class SwingKeyCapture {
                             /*if (info.vkCode == 81) {
                             	quit = true;
                             }*/
-                            if(!paused) {
-	                        	if(info.vkCode == 192 || info.vkCode == 160) {
-	                        		skillNumBeingTracked=0;
-	                        	}
-	                        	
-	                        	if(info.vkCode == 13) {
-	                        		NumberFormat fmt = NumberFormat.getInstance();
-	                        		fmt.setGroupingUsed(true);
-	                            	if(skillNumBeingTracked==1) {
-	                            		if(!playStarted) {
-	                            			playStarted = true;
-	                            			tpanel.startPlayTimer(); 
-	                            		}
-	                            		swingCount[0]++; 
-	                                	labels[0][0].setText(swingCount[0]+"");
-	                                	float sremaining = Float.parseFloat(labels[0][1].getText())-1;
-	                                	if(sremaining<=0) sremaining = Float.parseFloat(spanel.getSwingsNeeded(1));
-	                                	labels[0][1].setText(fmt.format(sremaining)+"");
-	                                	
-	                            	}else if(skillNumBeingTracked==2) {
-	                            		if(!playStarted) {
-	                            			playStarted = true;
-	                            			tpanel.startPlayTimer(); 
-	                            		}
-	                            		swingCount[1]++;
-	                            		//System.out.println("Swing Total: "+swingCount[1]);
-	                                	labels[1][0].setText(swingCount[1]+"");
-	                                	float sremaining = Float.parseFloat(labels[1][1].getText())-1;
-	                                	if(sremaining<=0) sremaining = Float.parseFloat(spanel.getSwingsNeeded(2));
-	                                	labels[1][1].setText(fmt.format(sremaining)+"");
-	                            	}                            	
-	                            }
-	                            
-	                            //F1 to F10 pressed determines which skill number to track
-	                            for(int i=0; i<10; i++) {
-	                            	if(info.vkCode==(112+i)) {
-	                            		skillNumBeingTracked = spanel.getSkillTracked(i);
-	                            		if(!playStarted) {
-	                            			playStarted = true;
-	                            			tpanel.startPlayTimer(); 
-	                            		}
-	                            	}
-	                            }
-	                            
-	                            if(info.vkCode == 70) { //"f" - track fight
-	                            	skillNumBeingTracked = spanel.getSkillTracked(10);
-	                            }
-	                            if(info.vkCode == 74) { //"j" - track jumpkick
-	                            	skillNumBeingTracked = spanel.getSkillTracked(11);
-	                            }
-	                            if(info.vkCode == 80) { //"p" - track polekick
-	                            	skillNumBeingTracked = spanel.getSkillTracked(12);
-	                            }
-	                            
-	                           tpanel.toggleSkillAlert(skillNumBeingTracked);
-                            }
+                        	tpanel.keyPressed(info.vkCode);
+                            
                     }
                 }
 
@@ -117,13 +61,9 @@ public class SwingKeyCapture {
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		        /*
-		         * 
-		         * ACTIONS TO PERFORM BEFORE CLOSING THE PROGRAM
-		         * 
-		    	*/
+		        
 		    	if(spanel.getCharacterIndex()!=0) {
-		    		tpanel.setExperience();			    	
+		    		tpanel.saveSession();			    	
 		    	}
 		    	setQuit(true);
 		    }

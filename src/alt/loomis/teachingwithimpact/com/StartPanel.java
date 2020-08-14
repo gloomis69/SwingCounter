@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 public class StartPanel extends JPanel{
@@ -46,8 +47,11 @@ public class StartPanel extends JPanel{
 	private JComboBox charName;
 	private JTextField pctGained1;
 	private JTextField pctGained2;
+	private JLabel lblSaveWarning;
+	private TrackingPanel tpanel;
 	
 	StartPanel(){
+		UIManager.put("ComboBox.disabledForeground", Color.BLACK);
 		
 		
 		//JFrame frame = (JFrame) this.getParent();
@@ -60,14 +64,12 @@ public class StartPanel extends JPanel{
 		lbl1.setBounds(10, 8, 150, 30);
 		CharacterManager cm = new CharacterManager();
 		String[] cnames = cm.getCharacters();
-		
+		charName = new JComboBox();
 		if(cnames!=null) {
 			charName = new JComboBox(cnames);
-		}else {
-			charName = new JComboBox();
 		}
-		getCharName().setBounds(10,38, 150,30); 
-		getCharName().setFont(new Font("Sans-Serif", Font.BOLD, 14));
+		charName.setBounds(10,38, 150,30); 
+		charName.setFont(new Font("Sans-Serif", Font.BOLD, 14));
 		class NameSelected implements ItemListener{
 		    @Override
 		    public void itemStateChanged(ItemEvent event) {
@@ -75,11 +77,12 @@ public class StartPanel extends JPanel{
 		    	   String name = (String)event.getItem();
 		    	   if(!name.equals(" ")) {
 		    		   loadCharacter(name);
+		    		   btnSave.setVisible(true);
 		    	   }
 		       }
 		    }       
 		}
-		getCharName().addItemListener(new NameSelected());
+		charName.addItemListener(new NameSelected());
 		
 		
 		/*JButton addCharacter = new JButton("+ New");
@@ -118,9 +121,10 @@ public class StartPanel extends JPanel{
 	    }); */
 		
 		JLabel lbl2= new JLabel("Starting Experience: ");		
-		lbl2.setBounds(260, 8, 150, 30);
+		lbl2.setBounds(168, 8, 150, 30);
 		experience = new JTextField();
-		getExperience().setBounds(260,38, 150,30);
+		experience.setDisabledTextColor(Color.BLACK);
+		getExperience().setBounds(168,38, 150,30);
 		getExperience().setHorizontalAlignment(SwingConstants.RIGHT);
 		getExperience().setBorder(BorderFactory.createCompoundBorder(linedBorder, spacer));
 		
@@ -141,7 +145,7 @@ public class StartPanel extends JPanel{
 		
 		JLabel lbl8= new JLabel("Level: ");		
 		lbl8.setBounds(140, 70, 40, 30);
-		level1_CB = new JComboBox(skillNames);
+		level1_CB = new JComboBox(skillNames);		
 		level1_CB.setBounds(140, 95, 100, 20);
 		
 		JLabel lbl9= new JLabel("Level: ");		
@@ -292,7 +296,7 @@ public class StartPanel extends JPanel{
 		JLabel lbl5= new JLabel("Skill 2: ");		
 		lbl5.setBounds(210, 190, 120, 30);
 		
-		this.add(getCharName());this.add(getExperience());
+		this.add(charName);this.add(getExperience());
 		
 		this.add(lbl1);this.add(lbl2);this.add(lbl3);this.add(lbl4);this.add(lbl5);this.add(lbl6);this.add(lbl7);
 		this.add(lbl8);this.add(lbl9);this.add(lbl10);this.add(lbl11);this.add(lbl12);this.add(lbl13);this.add(lbl14);this.add(lbl15);
@@ -320,6 +324,7 @@ public class StartPanel extends JPanel{
 		add(lblNewLabel_1);
 		
 		pctGained1 = new JTextField();
+		pctGained1.setDisabledTextColor(Color.BLACK);
 		pctGained1.setText("0");
 		pctGained1.setHorizontalAlignment(SwingConstants.CENTER);
 		pctGained1.setBounds(244, 95, 38, 20);
@@ -329,6 +334,7 @@ public class StartPanel extends JPanel{
 		
 		
 		pctGained2 = new JTextField();
+		pctGained2.setDisabledTextColor(Color.BLACK);
 		pctGained2.setText("0");
 		pctGained2.setHorizontalAlignment(SwingConstants.CENTER);
 		pctGained2.setBounds(244, 145, 38, 20);
@@ -336,11 +342,11 @@ public class StartPanel extends JPanel{
 		pctGained2.setColumns(10);
 		this.setVisible(true);
 		
-		btnSave = new JButton("Save");
-		btnSave.setBounds(360,700,70,30);
+		btnSave = new JButton("Start");
+		btnSave.setBounds(354,38,76,30);
 		btnSave.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  	            
-	            String character = (String)getCharName().getSelectedItem();
+	            String character = (String)charName.getSelectedItem();
 	            String exp = getExperience().getText();
 	            String skill1 = (String)skill1_CB.getSelectedItem();
 	            String level1 = (String)level1_CB.getSelectedItem();
@@ -362,9 +368,22 @@ public class StartPanel extends JPanel{
 	            }
 	            CharacterManager cm = new CharacterManager();
 	            cm.save(character, exp, skill1, level1, t1, skill2, level2, t2, settings, pct1, pct2);
+	            
+	            tpanel.startPlayTimer();
+	            btnSave.setVisible(false);
 	        }  
 	    }); 
+		btnSave.setVisible(false);
 		this.add(btnSave);
+		
+		lblSaveWarning = new JLabel("Changes can only be made before the session begins.  Click 'End Session' to reset.");
+		lblSaveWarning.setForeground(Color.WHITE);
+		lblSaveWarning.setBackground(Color.RED);
+		lblSaveWarning.setOpaque(true);
+		lblSaveWarning.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSaveWarning.setBounds(10, 176, 420, 14);
+		lblSaveWarning.setVisible(false);
+		add(lblSaveWarning);
 	}
 	
 	public void saveSettings() {
@@ -551,7 +570,7 @@ public class StartPanel extends JPanel{
 	}
 	
 	public int getCharacterIndex() {
-		return getCharName().getSelectedIndex();
+		return charName.getSelectedIndex();
 	}
 	
 	
@@ -605,4 +624,48 @@ public class StartPanel extends JPanel{
 	public void save() {
 		btnSave.doClick();
 	}
+
+	public void toggleTracking(boolean startTracking) {
+		if(startTracking) {
+			lblSaveWarning.setVisible(true);
+			
+			trained1.setEnabled(false);
+			trained2.setEnabled(false);
+			
+			level1_CB.setEnabled(false);
+			level2_CB.setEnabled(false);
+
+			skill1_CB.setEnabled(false);
+			skill2_CB.setEnabled(false);
+			experience.setEnabled(false);
+			//btnSave;
+			charName.setEnabled(false);
+			pctGained1.setEnabled(false);
+			pctGained2.setEnabled(false);
+			btnSave.setVisible(false);
+			
+		} else {
+			lblSaveWarning.setVisible(false);
+			trained1.setEnabled(true);
+			trained2.setEnabled(true);
+			
+			level1_CB.setEnabled(true);
+			level2_CB.setEnabled(true);
+
+			skill1_CB.setEnabled(true);
+			skill2_CB.setEnabled(true);
+			experience.setEnabled(true);
+			//btnSave;
+			charName.setEnabled(true);
+			pctGained1.setEnabled(true);
+			pctGained2.setEnabled(true);
+			btnSave.setVisible(true);
+		}
+		
+	}
+	
+	public void setTPanel(TrackingPanel tp) {
+		tpanel = tp;
+	}
+	
 }

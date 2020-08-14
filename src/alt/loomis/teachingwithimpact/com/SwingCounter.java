@@ -118,7 +118,7 @@ public class SwingCounter {
               			    	String experience = JOptionPane.showInputDialog(frame, "Enter you characters experience");
               			    	
               			    	if(experience!=null && !experience.isEmpty()) {
-              			    		panel.setExperience();
+              			    		panel.saveSession();
               			    	}
               		    	}
               		    	kc.setQuit(true);
@@ -156,8 +156,8 @@ public class SwingCounter {
         
         
         
-		kc = new SwingKeyCapture(frame, panel.getLabels(), startpanel, panel);		
-		kc.paused = false;
+		kc = new SwingKeyCapture(frame, startpanel, panel);		
+		
 		
 		
 	}

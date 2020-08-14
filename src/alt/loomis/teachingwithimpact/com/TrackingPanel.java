@@ -31,11 +31,11 @@ public class TrackingPanel extends JPanel{
 	private JLabel skill1_bg;
 	private JLabel skill2_bg;
 	private Timer timer;
-	private boolean paused = true;
+	private boolean paused = false;
 	private JButton btnPause;
 	private JLabel lblTime;
 	private int count = 0;
-	private SwingKeyCapture kc;
+	//private SwingKeyCapture kc;
 	private JLabel lblPctCalc1;
 	private JLabel lblPctCalc2;
 	private JLabel lblpph1;
@@ -46,13 +46,18 @@ public class TrackingPanel extends JPanel{
 	private JLabel hundredths1;
 	private JLabel lblNewLabel_3;
 	private JLabel hundredths2;
-	
+	private static int skillNumBeingTracked = 0; //0=no skill tracked, 1=skill 1, 2=skill 2: remember -1 for index of swingCount
+    private static int[] swingCount = {0, 0};
+    private boolean playStarted = false;
+	private JButton btnSaveSession;
+    
 	TrackingPanel(StartPanel startpanel){
 		NumberFormat fmt = NumberFormat.getPercentInstance();
 		fmt.setGroupingUsed(true);
 		fmt.setMaximumFractionDigits(3);
 
 		spanel = startpanel;
+		spanel.setTPanel(this);
 		
 		JLabel lblTimeTitle = new JLabel("Time Elapsed:");
 		lblTimeTitle.setBounds(10, 5, 160, 30);
@@ -210,19 +215,17 @@ public class TrackingPanel extends JPanel{
 		this.add(skill2_bg);
 
 		btnPause = new JButton("Pause");
-		btnPause.setBounds(100,670,70,30);
+		btnPause.setBounds(20,671,140,30);
 		btnPause.setVisible(false);
 		btnPause.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  	            
 				if(paused) {
 					paused = false;
 					btnPause.setText("Pause");
-					kc.paused = false;
 					timer = new Timer();
 					timer.schedule(new PlayTime(), 1000, 1*1000);
 				}else {
 					paused = true;
-					kc.paused = true;
 					btnPause.setText("Resume");
 					timer.cancel();
 				}
@@ -274,9 +277,83 @@ public class TrackingPanel extends JPanel{
 		hundredths2.setHorizontalAlignment(SwingConstants.CENTER);
 		hundredths2.setBounds(128, 425, 35, 14);
 		add(hundredths2);
+		
+		btnSaveSession = new JButton("End Session");
+		btnSaveSession.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int optionToSave = JOptionPane.showConfirmDialog(null, "Save session data?", "Reset Session", JOptionPane.YES_NO_CANCEL_OPTION);
+				if(optionToSave == JOptionPane.YES_OPTION) {
+					saveSession();
+				}else if(optionToSave == JOptionPane.NO_OPTION) {
+					resetTrackingSession();
+				}
+			}
+		});
+		btnSaveSession.setBounds(20, 705, 140, 30);
+		btnSaveSession.setVisible(false);
+		add(btnSaveSession);
 		this.setVisible(true);
 	}
 
+	public void keyPressed(int key) {
+		if(!paused) {
+        	if(key == 192 || key == 160) {
+        		skillNumBeingTracked=0;
+        	}
+        	
+        	if(key == 13) {
+        		NumberFormat fmt = NumberFormat.getInstance();
+        		fmt.setGroupingUsed(true);
+            	if(skillNumBeingTracked==1) {
+            		if(!playStarted) {
+            			playStarted = true;
+            			startPlayTimer(); 
+            		}
+            		swingCount[0]++; 
+                	lblSwingCount.setText(swingCount[0]+"");
+                	float sremaining = Float.parseFloat(lblSwingsNeeded.getText().replaceAll(",", ""))-1;
+                	if(sremaining<=0) sremaining = Float.parseFloat(spanel.getSwingsNeeded(1).replaceAll(",", ""));
+                	lblSwingsNeeded.setText(fmt.format(sremaining)+"");
+                	
+            	}else if(skillNumBeingTracked==2) {
+            		if(!playStarted) {
+            			playStarted = true;
+            			startPlayTimer(); 
+            		}
+            		swingCount[1]++;
+            		//System.out.println("Swing Total: "+swingCount[1]);
+                	lblSwingCount2.setText(swingCount[1]+"");
+                	float sremaining = Float.parseFloat(lblSwingsNeeded2.getText().replaceAll(",", ""))-1;
+                	if(sremaining<=0) sremaining = Float.parseFloat(spanel.getSwingsNeeded(2).replaceAll(",", ""));
+                	lblSwingsNeeded2.setText(fmt.format(sremaining)+"");
+            	}                            	
+            }
+            
+            //F1 to F10 pressed determines which skill number to track
+            for(int i=0; i<10; i++) {
+            	if(key==(112+i)) {
+            		skillNumBeingTracked = spanel.getSkillTracked(i);
+            		if(!playStarted) {
+            			playStarted = true;
+            			startPlayTimer(); 
+            		}
+            	}
+            }
+            
+            if(key == 70) { //"f" - track fight
+            	skillNumBeingTracked = spanel.getSkillTracked(10);
+            }
+            if(key == 74) { //"j" - track jumpkick
+            	skillNumBeingTracked = spanel.getSkillTracked(11);
+            }
+            if(key == 80) { //"p" - track polekick
+            	skillNumBeingTracked = spanel.getSkillTracked(12);
+            }
+            
+           toggleSkillAlert(skillNumBeingTracked);
+        }
+	}
+	
 	public void pauseTracker() {
 		btnPause.doClick();
 	}
@@ -284,9 +361,9 @@ public class TrackingPanel extends JPanel{
 		return lblTime.getText();
 	}
 	
-	public void loadKeyCapture(SwingKeyCapture kc) {
+	/*public void loadKeyCapture(SwingKeyCapture kc) {
 		this.kc = kc;
-	}
+	}*/
 	
 	public void toggleSkillAlert(int skillNum) {
 		switch (skillNum) {
@@ -313,8 +390,10 @@ public class TrackingPanel extends JPanel{
 	}
 
 	public void startPlayTimer() {	
+		spanel.toggleTracking(true);
 		paused = false;
 		btnPause.setVisible(true);
+		btnSaveSession.setVisible(true);
 		swingsNeeded = spanel.getSwingsPerPct(1);
 		lblSwingsNeeded.setText(swingsNeeded+"");
 		swingsNeeded2 = spanel.getSwingsPerPct(2);	
@@ -375,15 +454,21 @@ public class TrackingPanel extends JPanel{
 
 	}
 
-	public JLabel[][] getLabels() {
+	/*public JLabel[][] getLabels() {
 		JLabel[] labels1 = {lblSwingCount, lblSwingsNeeded};
 		JLabel[] labels2 = {lblSwingCount2, lblSwingsNeeded2};
 		JLabel[][] labels = {labels1, labels2};
 		return labels;
-	}
+	}*/
 	
-	public void setExperience() {
+	public void saveSession() {
+		
 		if(spanel.getCharName().getSelectedIndex()!=0) {
+			try {
+				if(timer!=null) timer.cancel();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			Long exp = Long.parseLong(spanel.getExperience().getText());
 			String endExp = JOptionPane.showInputDialog(this.getParent(), "Enter you characters experience", exp);
 	    	
@@ -413,7 +498,43 @@ public class TrackingPanel extends JPanel{
 				CharacterManager cm = new CharacterManager();
 				cm.save_session_data((String)spanel.getCharName().getSelectedItem(), gained+"", getSessionLength(), spanel.getSkill(1), lblSwingCount.getText(), lblPctCalc1.getText(), lblSph1.getText(), spanel.getSkill(2), lblSwingCount2.getText(), lblPctCalc2.getText(), lblSph2.getText());
 				JOptionPane.showMessageDialog(this.getParent(),"Experience gained this session: "+gained);
+				
+				resetTrackingSession();
 	    	}
 		}
+	}
+
+	private void resetTrackingSession() {
+		swingCount[0]=0;
+		swingCount[1]=0;
+		lblSwingCount.setText(0+"");
+		lblSwingCount2.setText(0+"");
+		lblSph1.setText(0+"");
+		//swingsNeeded=0;
+		lblSwingsNeeded.setText(0+"");
+		//swingsNeeded2=0;
+		lblSwingsNeeded2.setText(0+"");
+		lblSph2.setText(0+"");
+		try {
+			timer.cancel();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		count = 0;
+		lblPctCalc1.setText(0+"%");
+		lblPctCalc2.setText(0+"%");
+		lblpph1.setText(0+"");
+		lblpph2.setText(0+"");
+		skill1Estimate.setText("");
+		skill2Estimate.setText("");
+		hundredths1.setText(0+"");
+		hundredths2.setText(0+"");	
+		skillNumBeingTracked=0;
+		playStarted=false;
+		lblTime.setText("00:00:00");
+		toggleSkillAlert(0);
+		spanel.toggleTracking(false);
+		btnSaveSession.setVisible(false);
+		btnPause.setVisible(false);
 	}
 }

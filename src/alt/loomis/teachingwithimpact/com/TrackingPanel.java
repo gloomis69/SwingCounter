@@ -51,6 +51,7 @@ public class TrackingPanel extends JPanel{
     private boolean playStarted = false;
 	private JButton btnSaveSession;
     private long startTime;
+	private int secElapsedBeforePause;
     
 	TrackingPanel(StartPanel startpanel){
 		NumberFormat fmt = NumberFormat.getPercentInstance();
@@ -224,8 +225,9 @@ public class TrackingPanel extends JPanel{
 					paused = false;
 					playStarted = true;
 					btnPause.setText("Pause");
-					timer = new Timer();
-					timer.schedule(new PlayTime(), 1000, 1*1000);
+					/*timer = new Timer();
+					timer.schedule(new PlayTime(), 1000, 1*1000);*/
+					startPlayTimer();
 				}else {
 					paused = true;
 					playStarted = false;
@@ -393,13 +395,14 @@ public class TrackingPanel extends JPanel{
 		lblSwingsNeeded2.setText(swingsNeeded2+"");
 		timer = new Timer();
 		timer.schedule(new PlayTime(), 1000, 1*1000);
+		secElapsedBeforePause = secondsElapsed;
 	}
 
 	class PlayTime extends TimerTask{		
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			secondsElapsed = Math.round((System.currentTimeMillis()-startTime)/1000);
+			secondsElapsed = Math.round((System.currentTimeMillis()-startTime)/1000)+secElapsedBeforePause;
 			if(secondsElapsed==1 || secondsElapsed%3==0) {
 				int sCount = Integer.parseInt(lblSwingCount.getText());
 				float sph = (float) sCount/secondsElapsed*3600;

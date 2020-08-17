@@ -184,4 +184,29 @@ public class SqLite {
 		ResultSet res = state.executeQuery("SELECT * FROM sessions ORDER BY date DESC");
 		return res;
 	}
+	
+	/*public ResultSet getSkillPct1(String charName) throws ClassNotFoundException, SQLException {
+		if(con==null) {
+			getConnection();
+		}
+		
+		String query = "SELECT pct1 FROM characters WHERE character = ? LIMIT 1";
+		PreparedStatement prep = con.prepareStatement(query);
+		prep.setString(1, charName);
+		ResultSet res = prep.executeQuery();
+		
+		return res;
+	}
+	public ResultSet getSkillPct2(String charName) throws ClassNotFoundException, SQLException {
+		if(con==null) {
+			getConnection();
+		}
+		
+		String query = "SELECT pct2 FROM characters WHERE character = ? LIMIT 1";
+		PreparedStatement prep = con.prepareStatement(query);
+		prep.setString(1, charName);
+		ResultSet res = prep.executeQuery();
+		
+		return res;
+	}*/
 }

@@ -54,6 +54,8 @@ public class TrackingPanel extends JPanel{
 	private int secElapsedBeforePause;
     
 	TrackingPanel(StartPanel startpanel){
+		
+		
 		NumberFormat fmt = NumberFormat.getPercentInstance();
 		fmt.setGroupingUsed(true);
 		fmt.setMaximumFractionDigits(3);
@@ -220,7 +222,14 @@ public class TrackingPanel extends JPanel{
 		btnPause.setBounds(20,671,140,30);
 		btnPause.setVisible(false);
 		btnPause.addActionListener(new ActionListener(){  
-			public void actionPerformed(ActionEvent e){  	            
+			public void actionPerformed(ActionEvent e){  
+				CharacterManager cm = new CharacterManager();
+				String charName = (String)spanel.getCharName().getSelectedItem();
+				float pctGained = (float)spanel.getSwingsPerPct(1)/(float)swingCount[0];
+				float current = cm.getSavedPct(charName, 1);
+				System.out.println("pct saved: "+pctGained+", current: "+current);
+				
+				
 				if(paused) {
 					paused = false;
 					playStarted = true;
@@ -381,22 +390,46 @@ public class TrackingPanel extends JPanel{
 
 
 	}
-
+	
+	private float calculateSwingsNeeded(int skillnum) {
+		float swpp = spanel.getSwingsPerPct(skillnum);
+		String pctgainedString = lblPctCalc1.getText();
+		if(skillnum==2) pctgainedString = lblPctCalc2.getText();
+		pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
+		float pctGained = Float.parseFloat(pctgainedString);
+		float getLvl = spanel.getLevel1()+pctGained/100.0f;
+		if(skillnum==2) getLvl = spanel.getLevel2()+pctGained/100.0f;
+		float pct = getLvl%1;
+		float swRemaining = swpp - swpp*pct;		
+		return swRemaining;
+	}
+	
 	public void startPlayTimer() {	
+		NumberFormat fmt = NumberFormat.getInstance();
+		fmt.setGroupingUsed(true);
+		
 		spanel.toggleTracking(true);
 		playStarted = true;
 		startTime = System.currentTimeMillis();
 		paused = false;
 		btnPause.setVisible(true);
 		btnSaveSession.setVisible(true);
-		swingsNeeded = spanel.getSwingsPerPct(1);
+		//swingsNeeded = spanel.getSwingsPerPct(1);
+		swingsNeeded = calculateSwingsNeeded(1);		
 		lblSwingsNeeded.setText(swingsNeeded+"");
-		swingsNeeded2 = spanel.getSwingsPerPct(2);	
+		if(swingsNeeded>20) lblSwingsNeeded.setText(fmt.format((int)swingsNeeded));
+		//swingsNeeded2 = spanel.getSwingsPerPct(2);
+		swingsNeeded2 = calculateSwingsNeeded(2);
 		lblSwingsNeeded2.setText(swingsNeeded2+"");
+		if(swingsNeeded2>20) lblSwingsNeeded2.setText(fmt.format((int)swingsNeeded2));
+		secElapsedBeforePause = secondsElapsed;
+		
 		timer = new Timer();
 		timer.schedule(new PlayTime(), 1000, 1*1000);
-		secElapsedBeforePause = secondsElapsed;
+		
 	}
+
+	
 
 	class PlayTime extends TimerTask{		
 		@Override
@@ -469,30 +502,37 @@ public class TrackingPanel extends JPanel{
 			String endExp = JOptionPane.showInputDialog(this.getParent(), "Enter you characters experience", exp);
 	    	
 	    	if(endExp!=null && !endExp.isEmpty()) {
-	    		
+	    		CharacterManager cm = new CharacterManager();
+	    		String charName = (String)spanel.getCharName().getSelectedItem();
 				Long endexp = Long.parseLong(endExp);
 				Long gained = endexp-exp;
 				spanel.setExperience(endExp+"");
 				String pctgainedString = lblPctCalc1.getText();
 				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
-				float pctGained = Float.parseFloat(pctgainedString)/100.0f;
-				float current = spanel.getLevel1();
+				//float pctGained = Float.parseFloat(pctgainedString)/100.0f;
+				float pctGained = spanel.getSwingsPerPct(1)/(float)swingCount[0];
+				
+				//float current = spanel.getLevel1();
+				float current = cm.getSavedPct(charName, 1);
+				
 				float getLvl = current+pctGained;
 				getLvl = ((int)(getLvl*10000))/10000.0f;
 				spanel.setLevel1(getLvl);
 				
 				pctgainedString = lblPctCalc2.getText();
 				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
-				pctGained = Float.parseFloat(pctgainedString)/100.0f;
-				current = spanel.getLevel2();
+				//pctGained = Float.parseFloat(pctgainedString)/100.0f;
+				//current = spanel.getLevel2();
+				pctGained = spanel.getSwingsPerPct(2)/(float)swingCount[1];
+				current = cm.getSavedPct(charName, 2);
 				getLvl = current+pctGained;
 				getLvl = ((int)(getLvl*10000))/10000.0f;
 				spanel.setLevel2(getLvl);
 				
 				spanel.save();
 				
-				CharacterManager cm = new CharacterManager();
-				cm.save_session_data((String)spanel.getCharName().getSelectedItem(), gained+"", getSessionLength(), spanel.getSkill(1), lblSwingCount.getText(), lblPctCalc1.getText(), lblSph1.getText(), spanel.getSkill(2), lblSwingCount2.getText(), lblPctCalc2.getText(), lblSph2.getText());
+				
+				cm.save_session_data(charName, gained+"", getSessionLength(), spanel.getSkill(1), lblSwingCount.getText(), lblPctCalc1.getText(), lblSph1.getText(), spanel.getSkill(2), lblSwingCount2.getText(), lblPctCalc2.getText(), lblSph2.getText());
 				JOptionPane.showMessageDialog(this.getParent(),"Experience gained this session: "+gained);
 				
 				resetTrackingSession();

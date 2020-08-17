@@ -126,4 +126,29 @@ public class CharacterManager {
 		
 	}
 
+	public float getSavedPct(String charName, int skillnum) {
+		SqLite sqlite = new SqLite();
+		ResultSet rs;
+		float response = 0.0f;		
+		try {
+			rs = sqlite.getCharacter(charName);
+			while(rs.next()) {
+				String pct;
+				if(skillnum==1) {
+					pct = rs.getString("pct1");
+					System.out.println("pct1: "+pct);
+				}else {
+					pct = rs.getString("pct2");
+					System.out.println("pct2: "+pct);					
+				}
+				response = Float.parseFloat(pct);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
 }

@@ -91,8 +91,8 @@ public class TrackingPanel extends JPanel{
 		sneed.setBounds(20, 155, 140, 30);
 		sneed.setHorizontalAlignment(SwingConstants.RIGHT);
 		this.add(sneed);
-		swingsNeeded = startpanel.getSwingsPerPct(1);		
-		lblSwingsNeeded = new JLabel(swingsNeeded+"");		
+		//swingsNeeded = startpanel.getSwingsPerPct(1);		
+		lblSwingsNeeded = new JLabel(0+"");		
 		lblSwingsNeeded.setBounds(20, 175, 140, 30);
 		lblSwingsNeeded.setHorizontalAlignment(SwingConstants.RIGHT);
 		this.add(lblSwingsNeeded);
@@ -160,8 +160,8 @@ public class TrackingPanel extends JPanel{
 		sneed2.setBounds(20, 455, 140, 30);
 		sneed2.setHorizontalAlignment(SwingConstants.RIGHT);
 		this.add(sneed2);
-		swingsNeeded2 = startpanel.getSwingsPerPct(2);		
-		lblSwingsNeeded2 = new JLabel(swingsNeeded2+"");		
+		//swingsNeeded2 = startpanel.getSwingsPerPct(2);		
+		lblSwingsNeeded2 = new JLabel(0+"");		
 		lblSwingsNeeded2.setBounds(20, 475, 140, 30);
 		lblSwingsNeeded2.setHorizontalAlignment(SwingConstants.RIGHT);
 		this.add(lblSwingsNeeded2);
@@ -356,6 +356,22 @@ public class TrackingPanel extends JPanel{
         }
 	}
 	
+	public void setSwingsNeeded(int skillnum, float swings) {
+		NumberFormat fmt = NumberFormat.getInstance();
+		fmt.setGroupingUsed(true);
+		if(swings>5) swings = (int)swings;
+		if(skillnum==1) {
+			swingsNeeded = swings;
+			
+			lblSwingsNeeded.setText(fmt.format(swings));
+		}else {
+			swingsNeeded2 = swings;
+			lblSwingsNeeded2.setText(fmt.format(swings));
+		}
+		
+		
+	}
+	
 	public void pauseTracker() {
 		btnPause.doClick();
 	}
@@ -414,6 +430,7 @@ public class TrackingPanel extends JPanel{
 		paused = false;
 		btnPause.setVisible(true);
 		btnSaveSession.setVisible(true);
+
 		//swingsNeeded = spanel.getSwingsPerPct(1);
 		swingsNeeded = calculateSwingsNeeded(1);		
 		lblSwingsNeeded.setText(swingsNeeded+"");
@@ -423,6 +440,7 @@ public class TrackingPanel extends JPanel{
 		lblSwingsNeeded2.setText(swingsNeeded2+"");
 		if(swingsNeeded2>20) lblSwingsNeeded2.setText(fmt.format((int)swingsNeeded2));
 		secElapsedBeforePause = secondsElapsed;
+
 		
 		timer = new Timer();
 		timer.schedule(new PlayTime(), 1000, 1*1000);

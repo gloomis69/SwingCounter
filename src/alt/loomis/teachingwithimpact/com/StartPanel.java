@@ -368,7 +368,14 @@ public class StartPanel extends JPanel{
 	            }
 	            CharacterManager cm = new CharacterManager();
 	            cm.save(character, exp, skill1, level1, t1, skill2, level2, t2, settings, pct1, pct2);
-	            
+	            float nPct1 =Float.parseFloat(pct1)%1;
+	            float nPct2 =Float.parseFloat(pct2)%1;
+	            if(nPct1==0) nPct1 = 1;
+	            if(nPct2==0) nPct2 = 1;
+	            float swNeeded1 = Float.parseFloat(Sw_per_pct1.getText().replaceAll(",", ""));
+	            float swNeeded2 = Float.parseFloat(Sw_per_pct2.getText().replaceAll(",", ""));
+	            tpanel.setSwingsNeeded(1, swNeeded1-nPct1*swNeeded1);
+	            tpanel.setSwingsNeeded(2, swNeeded2-nPct2*swNeeded2);
 	            tpanel.startPlayTimer();
 	            btnSave.setVisible(false);
 	        }  

@@ -359,6 +359,7 @@ public class StartPanel extends JPanel{
 	            String t2 = Boolean.toString(trained2.isSelected());
 	            String settings = "";
 	            
+	            
 	            for(int i=0; i<skillsTracked.length; i++) {
 	            	if(i<skillsTracked.length-1) {
 	            		settings+=skillsTracked[i]+",";
@@ -370,10 +371,13 @@ public class StartPanel extends JPanel{
 	            cm.save(character, exp, skill1, level1, t1, skill2, level2, t2, settings, pct1, pct2);
 	            float nPct1 =Float.parseFloat(pct1)%1;
 	            float nPct2 =Float.parseFloat(pct2)%1;
-	            if(nPct1==0) nPct1 = 1;
+	            /*if(nPct1==0) nPct1 = 1;
 	            if(nPct2==0) nPct2 = 1;
+	            */
 	            float swNeeded1 = Float.parseFloat(Sw_per_pct1.getText().replaceAll(",", ""));
 	            float swNeeded2 = Float.parseFloat(Sw_per_pct2.getText().replaceAll(",", ""));
+	            
+	            //System.out.println("s1: "+(swNeeded1-nPct1*swNeeded1)+", s2: "+(swNeeded2-nPct2*swNeeded2));
 	            tpanel.setSwingsNeeded(1, swNeeded1-nPct1*swNeeded1);
 	            tpanel.setSwingsNeeded(2, swNeeded2-nPct2*swNeeded2);
 	            tpanel.startPlayTimer();
@@ -613,6 +617,7 @@ public class StartPanel extends JPanel{
 	}
 
 	public void setLevel1(float getLvl) {
+		System.out.println("setLevel1 level: "+getLvl);
 		float pct = (getLvl%1)*10000.0f;
 		int wholeLevel = (int)getLvl;
 		pct = ((int)pct)/100.0f;

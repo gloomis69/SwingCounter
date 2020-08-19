@@ -359,13 +359,16 @@ public class TrackingPanel extends JPanel{
 	public void setSwingsNeeded(int skillnum, float swings) {
 		NumberFormat fmt = NumberFormat.getInstance();
 		fmt.setGroupingUsed(true);
-		if(swings>5) swings = (int)swings;
+		if(swings>5) {
+			swings = Math.round(swings);
+		}
 		if(skillnum==1) {
 			swingsNeeded = swings;
-			
+			//System.out.println("swn1: "+fmt.format(swings));
 			lblSwingsNeeded.setText(fmt.format(swings));
 		}else {
 			swingsNeeded2 = swings;
+			//System.out.println("swn2: "+fmt.format(swings));
 			lblSwingsNeeded2.setText(fmt.format(swings));
 		}
 		
@@ -407,7 +410,7 @@ public class TrackingPanel extends JPanel{
 
 	}
 	
-	private float calculateSwingsNeeded(int skillnum) {
+	/*private float calculateSwingsNeeded(int skillnum) {
 		float swpp = spanel.getSwingsPerPct(skillnum);
 		String pctgainedString = lblPctCalc1.getText();
 		if(skillnum==2) pctgainedString = lblPctCalc2.getText();
@@ -418,7 +421,7 @@ public class TrackingPanel extends JPanel{
 		float pct = getLvl%1;
 		float swRemaining = swpp - swpp*pct;		
 		return swRemaining;
-	}
+	}*/
 	
 	public void startPlayTimer() {	
 		NumberFormat fmt = NumberFormat.getInstance();
@@ -432,13 +435,13 @@ public class TrackingPanel extends JPanel{
 		btnSaveSession.setVisible(true);
 
 		//swingsNeeded = spanel.getSwingsPerPct(1);
-		swingsNeeded = calculateSwingsNeeded(1);		
-		lblSwingsNeeded.setText(swingsNeeded+"");
-		if(swingsNeeded>20) lblSwingsNeeded.setText(fmt.format((int)swingsNeeded));
+		//swingsNeeded = calculateSwingsNeeded(1);		
+		//lblSwingsNeeded.setText(swingsNeeded+"");
+		//if(swingsNeeded>20) lblSwingsNeeded.setText(fmt.format((int)swingsNeeded));
 		//swingsNeeded2 = spanel.getSwingsPerPct(2);
-		swingsNeeded2 = calculateSwingsNeeded(2);
-		lblSwingsNeeded2.setText(swingsNeeded2+"");
-		if(swingsNeeded2>20) lblSwingsNeeded2.setText(fmt.format((int)swingsNeeded2));
+		//swingsNeeded2 = calculateSwingsNeeded(2);
+		//lblSwingsNeeded2.setText(swingsNeeded2+"");
+		//if(swingsNeeded2>20) lblSwingsNeeded2.setText(fmt.format((int)swingsNeeded2));
 		secElapsedBeforePause = secondsElapsed;
 
 		
@@ -465,7 +468,7 @@ public class TrackingPanel extends JPanel{
 				lblpph1.setText(String.format("%.3f", pctph)+"%");
 				float getLvl = spanel.getLevel1()+pctGained/100.0f;
 				int wholeLvl = Math.round(getLvl);
-				int pct = Math.round(getLvl%1*100);
+				int pct = (int)(getLvl%1*100);
 				int partialPct = (int)(((float) ((Math.round(getLvl*10000)/100.0))%1)*100); 
 				skill1Estimate.setText("Lvl "+wholeLvl+"    "+pct+"% and ");
 				hundredths1.setText(partialPct+"");
@@ -481,7 +484,7 @@ public class TrackingPanel extends JPanel{
 				lblpph2.setText(String.format("%.3f", pctph)+"%");
 				getLvl = spanel.getLevel2()+pctGained/100.0f;
 				wholeLvl = Math.round(getLvl);
-				pct = Math.round(getLvl%1*100);
+				pct = (int)(getLvl%1*100);
 				partialPct = (int)(((float) ((Math.round(getLvl*10000)/100.0))%1)*100); 
 				skill2Estimate.setText("Lvl "+wholeLvl+"    "+pct+"% and ");
 				hundredths2.setText(partialPct+"");
@@ -527,11 +530,11 @@ public class TrackingPanel extends JPanel{
 				spanel.setExperience(endExp+"");
 				String pctgainedString = lblPctCalc1.getText();
 				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
-				//float pctGained = Float.parseFloat(pctgainedString)/100.0f;
-				float pctGained = spanel.getSwingsPerPct(1)/(float)swingCount[0];
+				float pctGained = Float.parseFloat(pctgainedString)/100.0f;
+				//float pctGained = spanel.getSwingsPerPct(1)/(float)swingCount[0];
 				
-				//float current = spanel.getLevel1();
-				float current = cm.getSavedPct(charName, 1);
+				float current = spanel.getLevel1();
+				//float current = cm.getSavedPct(charName, 1);
 				
 				float getLvl = current+pctGained;
 				getLvl = ((int)(getLvl*10000))/10000.0f;
@@ -539,10 +542,10 @@ public class TrackingPanel extends JPanel{
 				
 				pctgainedString = lblPctCalc2.getText();
 				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
-				//pctGained = Float.parseFloat(pctgainedString)/100.0f;
-				//current = spanel.getLevel2();
-				pctGained = spanel.getSwingsPerPct(2)/(float)swingCount[1];
-				current = cm.getSavedPct(charName, 2);
+				pctGained = Float.parseFloat(pctgainedString)/100.0f;
+				current = spanel.getLevel2();
+				//pctGained = spanel.getSwingsPerPct(2)/(float)swingCount[1];
+				//current = cm.getSavedPct(charName, 2);
 				getLvl = current+pctGained;
 				getLvl = ((int)(getLvl*10000))/10000.0f;
 				spanel.setLevel2(getLvl);

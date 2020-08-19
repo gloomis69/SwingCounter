@@ -533,24 +533,16 @@ public class TrackingPanel extends JPanel{
 				float pctGained = Float.parseFloat(pctgainedString)/100.0f;
 				//float pctGained = spanel.getSwingsPerPct(1)/(float)swingCount[0];
 				
-				float current = spanel.getLevel1();
-				//float current = cm.getSavedPct(charName, 1);
 				
-				float getLvl = current+pctGained;
-				getLvl = ((int)(getLvl*10000))/10000.0f;
-				spanel.setLevel1(getLvl);
+				spanel.setLevel1(pctGained);
 				
 				pctgainedString = lblPctCalc2.getText();
 				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
-				pctGained = Float.parseFloat(pctgainedString)/100.0f;
-				current = spanel.getLevel2();
-				//pctGained = spanel.getSwingsPerPct(2)/(float)swingCount[1];
-				//current = cm.getSavedPct(charName, 2);
-				getLvl = current+pctGained;
-				getLvl = ((int)(getLvl*10000))/10000.0f;
-				spanel.setLevel2(getLvl);
+				pctGained = Float.parseFloat(pctgainedString);
 				
-				spanel.save();
+				spanel.setLevel2(pctGained);
+				
+				spanel.pressSaveButton();
 				
 				
 				cm.save_session_data(charName, gained+"", getSessionLength(), spanel.getSkill(1), lblSwingCount.getText(), lblPctCalc1.getText(), lblSph1.getText(), spanel.getSkill(2), lblSwingCount2.getText(), lblPctCalc2.getText(), lblSph2.getText());

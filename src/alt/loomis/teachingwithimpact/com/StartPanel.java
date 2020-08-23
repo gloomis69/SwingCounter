@@ -22,6 +22,11 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 
 
@@ -106,6 +111,23 @@ public class StartPanel extends JPanel{
 		this.add(lblNewLabel_1);
 		
 		pctGained1 = new JTextField();
+		pctGained1.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				warn();
+			}
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				warn();
+			}
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				warn();
+			}
+			public void warn() {
+			     System.out.println(pctGained1.getText());
+			}
+		});
 		pctGained1.setDisabledTextColor(Color.BLACK);
 		pctGained1.setText("0");
 		pctGained1.setHorizontalAlignment(SwingConstants.CENTER);
@@ -396,15 +418,15 @@ public class StartPanel extends JPanel{
 		if(data!=null) {
 			String[] settings = cm.convertStringToArray(data[8]);
 			experience_TF.setText(data[1]);
-			//skill1_CB.setSelectedItem(data[2]);
-			//level1_CB.setSelectedItem(data[3]);
+			skill1_CB.setSelectedItem(data[2]);
+			level1_CB.setSelectedItem(data[3]);
 			//trained1.setSelected(Boolean.parseBoolean(data[4]));
 			//pctGained1.setText(data[9]);
 			
-			/*skill2_CB.setSelectedItem(data[5]);
+			skill2_CB.setSelectedItem(data[5]);
 			level2_CB.setSelectedItem(data[6]);
-			trained2.setSelected(Boolean.parseBoolean(data[7]));
-			pctGained2.setText(data[10]);*/
+			//trained2.setSelected(Boolean.parseBoolean(data[7]));
+			//pctGained2.setText(data[10]);
 			
 			for(int i=0; i<settings.length; i++) {
 				int b = Integer.parseInt(settings[i]);
@@ -436,6 +458,9 @@ public class StartPanel extends JPanel{
 		float pct2 = Float.parseFloat(data[10])/100.0f;
 		fullLevel_2 = lvl2+pct2;
 		swpl_2 = calculateSwingsPerLvl(lvl2, Boolean.parseBoolean(data[7]));
+		
+		
+		
 		/*System.out.println(Boolean.parseBoolean(data[4]));
 		System.out.println(Boolean.parseBoolean(data[7]));
 		
@@ -484,12 +509,16 @@ public class StartPanel extends JPanel{
 		return rbGroups;
 	}
 	
+	public float getSwingsPerLvl(int skillnum) {
+		if(skillnum==1) return swpl_1;
+		return swpl_2;
+	}
+	
 	public float getSwingsPerPct(int skillNum) {		
-		String spp = Sw_per_pct2.getText();
-		if(skillNum==1) spp = Sw_per_pct1.getText();
-		spp = spp.replaceAll(",", "");
-		if(skillNum==1) return Float.parseFloat(spp);
-		return Float.parseFloat(spp);
+		if(skillNum==1) {
+			return swpl_1/100;
+		}
+		return swpl_2/100;
 	}
 	
 	public String getSwingsNeeded(int skillNum) {
@@ -547,9 +576,6 @@ public class StartPanel extends JPanel{
 		float pct = (fullLevel_1%1)*10000.0f;
 		int wholeLevel = (int)fullLevel_1;
 		pct = ((int)pct)/100.0f;
-		
-		skill1_CB.setSelectedItem(skill1Name);
-		level1_CB.setSelectedIndex(wholeLevel);
 		pctGained1.setText(pct+"");
 		Sw_per_pct1.setText(fmt.format(swpl_1/100.0f));	
     	Sw_per_lvl1.setText(fmt.format(swpl_1));
@@ -557,8 +583,6 @@ public class StartPanel extends JPanel{
 		pct = (fullLevel_2%1)*10000.0f;
 		wholeLevel = (int)fullLevel_2;
 		pct = ((int)pct)/100.0f;
-		skill2_CB.setSelectedItem(skill2Name);
-		level2_CB.setSelectedIndex(wholeLevel);
 		pctGained2.setText(pct+"");
 		Sw_per_pct2.setText(fmt.format(swpl_2/100.0f));	
     	Sw_per_lvl2.setText(fmt.format(swpl_2));
@@ -666,8 +690,8 @@ public class StartPanel extends JPanel{
 	    @Override
 	    public void itemStateChanged(ItemEvent event) {
 	       if (event.getStateChange() == ItemEvent.SELECTED) {
-	    	   int level = getLevel(1);		    	   
-	    	   swpl_1 = calculateSwingsPerLvl(level, trained1.isSelected());
+	    	   fullLevel_1 = level1_CB.getSelectedIndex();	    	   
+	    	   swpl_1 = calculateSwingsPerLvl((int)fullLevel_1, trained1.isSelected());
 	    	   updateInterface();
 	       }
 	    }       
@@ -678,7 +702,7 @@ public class StartPanel extends JPanel{
 	    public void itemStateChanged(ItemEvent event) {
 	       if (event.getStateChange() == ItemEvent.SELECTED) {
 	    	   int level = getLevel(2);
-	    	   swpl_2 = calculateSwingsPerLvl(level, trained2.isSelected());
+	    	   swpl_2 = calculateSwingsPerLvl(level2_CB.getSelectedIndex(), trained2.isSelected());
 	    	   updateInterface();
 	       }
 	    }       
@@ -688,7 +712,7 @@ public class StartPanel extends JPanel{
 	    @Override
 	    public void itemStateChanged(ItemEvent event) {
 		    int level = getLevel(1);
-		    swpl_1 = calculateSwingsPerLvl(level, trained1.isSelected());
+		    swpl_1 = calculateSwingsPerLvl((int)fullLevel_1, trained1.isSelected());
 	    	updateInterface();	    	
 	    }       
 	}
@@ -697,7 +721,7 @@ public class StartPanel extends JPanel{
 	    @Override
 	    public void itemStateChanged(ItemEvent event) {
 	       int level = getLevel(2);
-	       swpl_2 = calculateSwingsPerLvl(level, trained2.isSelected());
+	       swpl_2 = calculateSwingsPerLvl((int)fullLevel_2, trained2.isSelected());
 	       updateInterface();
 	    }       
 	}
@@ -735,17 +759,19 @@ public class StartPanel extends JPanel{
             }
             CharacterManager cm = new CharacterManager();
             cm.save(character, exp, skill1, level1, t1, skill2, level2, t2, settings, pct1, pct2);
-            float nPct1 =Float.parseFloat(pct1)%1;
-            float nPct2 =Float.parseFloat(pct2)%1;
+            float nPct1 =(fullLevel_1*100%1);
+            float nPct2 =(fullLevel_2*100%1);
             /*if(nPct1==0) nPct1 = 1;
             if(nPct2==0) nPct2 = 1;
             */
-            float swNeeded1 = Float.parseFloat(Sw_per_pct1.getText().replaceAll(",", ""));
-            float swNeeded2 = Float.parseFloat(Sw_per_pct2.getText().replaceAll(",", ""));
+            float swNeeded1 = getSwingsPerPct(1);
+            float swNeeded2 = getSwingsPerPct(2);
             
-            System.out.println("s1: "+swNeeded1+", "+nPct1+", s2: "+swNeeded2+", "+nPct2);
+            System.out.println("s1: "+(swNeeded1-nPct1*swNeeded1)+", "+nPct1+", s2: "+(swNeeded2-nPct2*swNeeded2)+", "+nPct2);
             tpanel.setSwingsNeeded(1, swNeeded1-nPct1*swNeeded1);
             tpanel.setSwingsNeeded(2, swNeeded2-nPct2*swNeeded2);
+            tpanel.setLevels(1, fullLevel_1);
+            tpanel.setLevels(2, fullLevel_2);
             tpanel.startPlayTimer();
             btnSave.setVisible(false);
 		}

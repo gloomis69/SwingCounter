@@ -102,7 +102,7 @@ public class SwingCounter {
                       JMenuItem pause=new JMenuItem("Pause"); 
                       pause.addActionListener(new ActionListener(){  
               			public void actionPerformed(ActionEvent e){  	            
-              	            panel.pauseTracker();
+              	            panel.clickPauseButton();
               	        }  
               	    }); 
                       JMenuItem save=new JMenuItem("Save");  

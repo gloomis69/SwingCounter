@@ -495,7 +495,7 @@ public class TrackingPanel extends JPanel{
 				
 				pctgainedString = lblPctCalc2.getText();
 				pctgainedString = pctgainedString.substring(0, pctgainedString.length()-1);
-				pctGained = Float.parseFloat(pctgainedString);
+				pctGained = Float.parseFloat(pctgainedString)/100.0f;
 				
 				spanel.setLevel2(pctGained);
 				
